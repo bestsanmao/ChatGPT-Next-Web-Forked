@@ -40,7 +40,7 @@ export async function requestOpenai(req: NextRequest) {
     baseUrl = baseUrl.slice(0, -1);
   }
 
-  console.log("[Proxy] ", path);
+  console.log("[Proxy][common.ts] ", path);
   console.log("[Base Url]", baseUrl);
 
   const timeoutId = setTimeout(

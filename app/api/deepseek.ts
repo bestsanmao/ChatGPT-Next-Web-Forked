@@ -54,7 +54,7 @@ async function request(req: NextRequest) {
     baseUrl = baseUrl.slice(0, -1);
   }
 
-  console.log("[Proxy] ", path);
+  console.log("[Proxy][deepseek.ts] ", path);
   console.log("[Base Url]", baseUrl);
 
   const timeoutId = setTimeout(
@@ -79,7 +79,7 @@ async function request(req: NextRequest) {
   };
 
   // #1815 try to refuse some request to some models
-  if (serverConfig.customModels && req.body) {
+  if (false && serverConfig.customModels && req.body) {
     try {
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
@@ -91,7 +91,7 @@ async function request(req: NextRequest) {
         isModelAvailableInServer(
           serverConfig.customModels,
           jsonBody?.model as string,
-          ServiceProvider.Moonshot as string,
+          ServiceProvider.DeepSeek as string,
         )
       ) {
         return NextResponse.json(
@@ -109,6 +109,8 @@ async function request(req: NextRequest) {
     }
   }
   try {
+    console.log("[Fetching] ", fetchUrl, fetchOptions.headers);
+
     const res = await fetch(fetchUrl, fetchOptions);
 
     // to prevent browser prompt for credentials
