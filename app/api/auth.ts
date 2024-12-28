@@ -11,6 +11,9 @@ function getIP(req: NextRequest) {
     ip = forwardedFor.split(",").at(0) ?? "";
   }
 
+  let other_ip = req.headers.get("ali_cdn_real_ip");
+  if (other_ip) ip = other_ip;
+
   return ip;
 }
 
