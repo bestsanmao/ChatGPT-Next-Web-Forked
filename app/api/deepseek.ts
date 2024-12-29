@@ -54,8 +54,8 @@ async function request(req: NextRequest) {
     baseUrl = baseUrl.slice(0, -1);
   }
 
-  console.log("[Proxy][deepseek.ts] ", path);
-  console.log("[Base Url]", baseUrl);
+  //console.log("[Proxy][deepseek.ts] ", path);
+  //console.log("[Base Url]", baseUrl);
 
   const timeoutId = setTimeout(
     () => {
@@ -79,10 +79,12 @@ async function request(req: NextRequest) {
   };
 
   // #1815 try to refuse some request to some models
-  if (false && serverConfig.customModels && req.body) {
+  if (serverConfig.customModels && req.body) {
     try {
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
+
+      console.log("[cloneBody] ", clonedBody);
 
       const jsonBody = JSON.parse(clonedBody) as { model?: string };
 

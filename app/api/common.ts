@@ -40,8 +40,8 @@ export async function requestOpenai(req: NextRequest) {
     baseUrl = baseUrl.slice(0, -1);
   }
 
-  console.log("[Proxy][common.ts] ", path);
-  console.log("[Base Url]", baseUrl);
+  //console.log("[Proxy][common.ts] ", path);
+  //console.log("[Base Url]", baseUrl);
 
   const timeoutId = setTimeout(
     () => {
@@ -146,6 +146,8 @@ export async function requestOpenai(req: NextRequest) {
   }
 
   try {
+    console.log("[Fetching] ", fetchUrl, fetchOptions.headers);
+
     const res = await fetch(fetchUrl, fetchOptions);
 
     // Extract the OpenAI-Organization header from the response

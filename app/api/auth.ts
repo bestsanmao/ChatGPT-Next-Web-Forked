@@ -3,7 +3,7 @@ import { getServerSideConfig } from "../config/server";
 import md5 from "spark-md5";
 import { ACCESS_CODE_PREFIX, ModelProvider } from "../constant";
 
-function getIP(req: NextRequest) {
+/* function getIP(req: NextRequest) {
   let ip = req.ip ?? req.headers.get("x-real-ip");
   const forwardedFor = req.headers.get("x-forwarded-for");
 
@@ -17,7 +17,7 @@ function getIP(req: NextRequest) {
   if (other_ip) ip = other_ip;
 
   return ip;
-}
+} */
 
 function parseApiKey(bearToken: string) {
   const token = bearToken.trim().replaceAll("Bearer ", "").trim();
@@ -32,7 +32,7 @@ function parseApiKey(bearToken: string) {
 export function auth(req: NextRequest, modelProvider: ModelProvider) {
   const authToken = req.headers.get("Authorization") ?? "";
 
-  console.log(`[auth.ts] headers `, req.headers);
+  //console.log(`[auth.ts] headers `, req.headers);
 
   // check if it is openai api key or user token
   const { accessCode, apiKey } = parseApiKey(authToken);
@@ -40,11 +40,11 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
   const hashedCode = md5.hash(accessCode ?? "").trim();
 
   const serverConfig = getServerSideConfig();
-  console.log("[Auth] allowed hashed codes: ", [...serverConfig.codes]);
-  console.log("[Auth] got access code:", accessCode);
-  console.log("[Auth] hashed access code:", hashedCode);
-  console.log("[User IP] ", getIP(req));
-  console.log("[Time] ", new Date().toLocaleString());
+  //console.log("[Auth] allowed hashed codes: ", [...serverConfig.codes]);
+  //console.log("[Auth] got access code:", accessCode);
+  //console.log("[Auth] hashed access code:", hashedCode);
+  //console.log("[User IP] ", getIP(req));
+  //console.log("[Time] ", new Date().toLocaleString());
 
   if (serverConfig.needCode && !serverConfig.codes.has(hashedCode) && !apiKey) {
     return {
@@ -118,7 +118,7 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
     }
 
     if (systemApiKey) {
-      console.log("[Auth] use system api key");
+      console.log("[Auth] use", modelProvider, "api key:", systemApiKey);
       req.headers.set("Authorization", `Bearer ${systemApiKey}`);
     } else {
       console.log("[Auth] admin did not provide an api key");

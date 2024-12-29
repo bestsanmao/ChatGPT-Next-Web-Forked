@@ -21,10 +21,12 @@ async function handle(
 ) {
   const apiPath = `/api/${params.provider}`;
   console.log(`[${params.provider} Route] params `, params);
-  console.log(`[route.ts] headers `, req.headers);
+  //console.log(`[route.ts] headers `, req.headers);
 
   req.headers.forEach((value, key) => {
-    console.log(`[header] ${key}: ${value}`);
+    if (key in ["x-forwarded-for", "ali-cdn-real-ip", "user-agent"]) {
+      console.log(`[header] ${key}: ${value}`);
+    }
   });
 
   switch (apiPath) {
