@@ -21,7 +21,7 @@ async function handle(
 ) {
   const apiPath = `/api/${params.provider}`;
   console.log(`[${params.provider} Route] params `, params);
-  //console.log(`[${params.provider} Route] headers `, req.headers);
+  console.log(`[route.ts] headers `, req.headers);
 
   req.headers.forEach((value, key) => {
     console.log(`[header] ${key}: ${value}`);

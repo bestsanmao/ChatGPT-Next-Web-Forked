@@ -11,7 +11,7 @@ function getIP(req: NextRequest) {
     ip = forwardedFor.split(",").at(0) ?? "";
   }
 
-  console.log("[headers] ", req.headers);
+  console.log(`[auth.ts] getIP headers `, req.headers);
 
   let other_ip = req.headers.get("ali_cdn_real_ip");
   if (other_ip) ip = other_ip;
@@ -31,6 +31,8 @@ function parseApiKey(bearToken: string) {
 
 export function auth(req: NextRequest, modelProvider: ModelProvider) {
   const authToken = req.headers.get("Authorization") ?? "";
+
+  console.log(`[auth.ts] headers `, req.headers);
 
   // check if it is openai api key or user token
   const { accessCode, apiKey } = parseApiKey(authToken);
