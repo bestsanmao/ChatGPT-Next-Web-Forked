@@ -24,7 +24,7 @@ async function handle(
   //console.log(`[route.ts] headers `, req.headers);
 
   req.headers.forEach((value, key) => {
-    if (key in ["x-forwarded-for", "ali-cdn-real-ip", "user-agent"]) {
+    if (["x-forwarded-for", "ali-cdn-real-ip", "user-agent"].includes(key)) {
       console.log(`[header] ${key}: ${value}`);
     }
   });
