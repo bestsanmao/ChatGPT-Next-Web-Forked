@@ -196,6 +196,9 @@ export class ChatGPTApi implements LLMApi {
 
     const isDalle3 = _isDalle3(options.config.model);
     const isO1 = options.config.model.startsWith("o1");
+
+    const shouldStream = !isDalle3 && !isO1 && !!options.config.stream;
+
     if (isDalle3) {
       const prompt = getMessageTextContent(
         options.messages.slice(-1)?.pop() as any,
@@ -224,7 +227,7 @@ export class ChatGPTApi implements LLMApi {
       // O1 not support image, tools (plugin in ChatGPTNextWeb) and system, stream, logprobs, temperature, top_p, n, presence_penalty, frequency_penalty yet.
       requestPayload = {
         messages,
-        stream: options.config.stream,
+        stream: shouldStream,
         model: modelConfig.model,
         temperature: !isO1 ? modelConfig.temperature : 1,
         presence_penalty: !isO1 ? modelConfig.presence_penalty : 0,
@@ -247,7 +250,6 @@ export class ChatGPTApi implements LLMApi {
 
     console.log("[Request] openai payload: ", requestPayload);
 
-    const shouldStream = !isDalle3 && !isO1 && !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
 
@@ -349,8 +351,6 @@ export class ChatGPTApi implements LLMApi {
           options,
         );
       } else {
-        //console.log("shouldStream", shouldStream);
-        requestPayload["stream"] = shouldStream;
         const chatPayload = {
           method: "POST",
           body: JSON.stringify(requestPayload),
