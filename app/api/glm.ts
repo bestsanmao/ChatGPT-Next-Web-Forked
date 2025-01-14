@@ -85,6 +85,8 @@ async function request(req: NextRequest) {
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
 
+      console.log("[cloneBody] ", clonedBody);
+
       const jsonBody = JSON.parse(clonedBody) as { model?: string };
 
       // not undefined and is false
