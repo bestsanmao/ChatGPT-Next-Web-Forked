@@ -18,6 +18,7 @@ import {
   StoreKey,
   SUMMARIZE_MODEL,
   GEMINI_SUMMARIZE_MODEL,
+  DEEPSEEK_SUMMARIZE_MODEL,
   ServiceProvider,
 } from "../constant";
 import Locale, { getLang } from "../locales";
@@ -134,6 +135,8 @@ function getSummarizeModel(
   }
   if (currentModel.startsWith("gemini")) {
     return [GEMINI_SUMMARIZE_MODEL, ServiceProvider.Google];
+  } else if (currentModel.startsWith("deepseek-")) {
+    return [DEEPSEEK_SUMMARIZE_MODEL, ServiceProvider.DeepSeek];
   }
   return [currentModel, providerName];
 }
@@ -215,7 +218,7 @@ export const useChatStore = createPersistStore(
 
         newSession.topic = currentSession.topic;
         // 深拷贝消息
-        newSession.messages = currentSession.messages.map(msg => ({
+        newSession.messages = currentSession.messages.map((msg) => ({
           ...msg,
           id: nanoid(), // 生成新的消息 ID
         }));
