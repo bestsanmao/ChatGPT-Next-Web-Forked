@@ -190,10 +190,11 @@ export class GeminiProApi implements LLMApi {
         headers: getHeaders(),
       };
 
+      const isThinking = options.config.model.includes("-thinking");
       // make a fetch request
       const requestTimeoutId = setTimeout(
         () => controller.abort(),
-        REQUEST_TIMEOUT_MS,
+        isThinking ? REQUEST_TIMEOUT_MS * 5 : REQUEST_TIMEOUT_MS,
       );
 
       if (shouldStream) {
