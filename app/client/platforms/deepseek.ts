@@ -117,10 +117,14 @@ export class DeepSeekApi implements LLMApi {
 
       // console.log(chatPayload);
 
+      const isR1 =
+        options.config.model.endsWith("-reasoner") ||
+        options.config.model.endsWith("-r1");
+
       // make a fetch request
       const requestTimeoutId = setTimeout(
         () => controller.abort(),
-        REQUEST_TIMEOUT_MS,
+        isR1 ? REQUEST_TIMEOUT_MS * 5 : REQUEST_TIMEOUT_MS,
       );
 
       if (shouldStream) {
