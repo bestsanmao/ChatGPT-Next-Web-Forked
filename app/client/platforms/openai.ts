@@ -8,6 +8,7 @@ import {
   Azure,
   REQUEST_TIMEOUT_MS,
   ServiceProvider,
+  REQUEST_TIMEOUT_MS_FOR_THINKING,
 } from "@/app/constant";
 import {
   ChatMessageTool,
@@ -198,9 +199,6 @@ export class ChatGPTApi implements LLMApi {
     const isO1OrO3 =
       options.config.model.startsWith("o1") ||
       options.config.model.startsWith("o3");
-
-    const shouldStream = !isDalle3 && !isO1OrO3 && !!options.config.stream;
-
     if (isDalle3) {
       const prompt = getMessageTextContent(
         options.messages.slice(-1)?.pop() as any,
@@ -222,7 +220,6 @@ export class ChatGPTApi implements LLMApi {
         const content = visionModel
           ? await preProcessImageContent(v.content)
           : getMessageTextContent(v);
-
         if (!(isO1OrO3 && v.role === "system"))
           messages.push({ role: v.role, content });
       }
@@ -230,9 +227,8 @@ export class ChatGPTApi implements LLMApi {
       // O1 not support image, tools (plugin in ChatGPTNextWeb) and system, stream, logprobs, temperature, top_p, n, presence_penalty, frequency_penalty yet.
       requestPayload = {
         messages,
-        stream: shouldStream,
+        stream: options.config.stream,
         model: modelConfig.model,
-
         temperature: !isO1OrO3 ? modelConfig.temperature : 1,
         presence_penalty: !isO1OrO3 ? modelConfig.presence_penalty : 0,
         frequency_penalty: !isO1OrO3 ? modelConfig.frequency_penalty : 0,
@@ -242,7 +238,6 @@ export class ChatGPTApi implements LLMApi {
       };
 
       // O1 使用 max_completion_tokens 控制token数 (https://platform.openai.com/docs/guides/reasoning#controlling-costs)
-
       if (isO1OrO3) {
         requestPayload["max_completion_tokens"] = modelConfig.max_tokens;
       }
@@ -255,6 +250,7 @@ export class ChatGPTApi implements LLMApi {
 
     console.log("[Request] openai payload: ", requestPayload);
 
+    const shouldStream = !isDalle3 && !!options.config.stream;
     const controller = new AbortController();
     options.onController?.(controller);
 
@@ -366,7 +362,9 @@ export class ChatGPTApi implements LLMApi {
         // make a fetch request
         const requestTimeoutId = setTimeout(
           () => controller.abort(),
-          isDalle3 || isO1OrO3 ? REQUEST_TIMEOUT_MS * 4 : REQUEST_TIMEOUT_MS, // dalle3 using b64_json is slow.
+          isDalle3 || isO1OrO3
+            ? REQUEST_TIMEOUT_MS_FOR_THINKING
+            : REQUEST_TIMEOUT_MS, // dalle3 using b64_json is slow.
         );
 
         const res = await fetch(chatPath, chatPayload);
