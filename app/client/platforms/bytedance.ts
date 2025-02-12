@@ -1,10 +1,5 @@
 "use client";
-import {
-  ApiPath,
-  ByteDance,
-  BYTEDANCE_BASE_URL,
-  REQUEST_TIMEOUT_MS,
-} from "@/app/constant";
+import { ApiPath, ByteDance, BYTEDANCE_BASE_URL } from "@/app/constant";
 import {
   useAccessStore,
   useAppConfig,
@@ -25,7 +20,10 @@ import {
 import { streamWithThink } from "@/app/utils/chat";
 import { getClientConfig } from "@/app/config/client";
 import { preProcessImageContent } from "@/app/utils/chat";
-import { getMessageTextContentWithoutThinking } from "@/app/utils";
+import {
+  getMessageTextContentWithoutThinking,
+  getTimeoutMSByModel,
+} from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
 
 export interface OpenAIListModelResponse {
@@ -37,7 +35,7 @@ export interface OpenAIListModelResponse {
   }>;
 }
 
-interface RequestPayload {
+interface RequestPayloadForByteDance {
   messages: {
     role: "system" | "user" | "assistant";
     content: string | MultimodalContent[];
@@ -105,7 +103,7 @@ export class DoubaoApi implements LLMApi {
     };
 
     const shouldStream = !!options.config.stream;
-    const requestPayload: RequestPayload = {
+    const requestPayload: RequestPayloadForByteDance = {
       messages,
       stream: shouldStream,
       model: modelConfig.model,
@@ -130,7 +128,7 @@ export class DoubaoApi implements LLMApi {
       // make a fetch request
       const requestTimeoutId = setTimeout(
         () => controller.abort(),
-        REQUEST_TIMEOUT_MS,
+        getTimeoutMSByModel(options.config.model),
       );
 
       if (shouldStream) {
@@ -157,6 +155,9 @@ export class DoubaoApi implements LLMApi {
                 reasoning_content: string | null;
               };
             }>;
+
+            if (!choices?.length) return { isThinking: false, content: "" };
+
             const tool_calls = choices[0]?.delta?.tool_calls;
             if (tool_calls?.length > 0) {
               const index = tool_calls[0]?.index;
@@ -181,8 +182,8 @@ export class DoubaoApi implements LLMApi {
 
             // Skip if both content and reasoning_content are empty or null
             if (
-              (!reasoning || reasoning.trim().length === 0) &&
-              (!content || content.trim().length === 0)
+              (!reasoning || reasoning.length === 0) &&
+              (!content || content.length === 0)
             ) {
               return {
                 isThinking: false,
@@ -190,12 +191,12 @@ export class DoubaoApi implements LLMApi {
               };
             }
 
-            if (reasoning && reasoning.trim().length > 0) {
+            if (reasoning && reasoning.length > 0) {
               return {
                 isThinking: true,
                 content: reasoning,
               };
-            } else if (content && content.trim().length > 0) {
+            } else if (content && content.length > 0) {
               return {
                 isThinking: false,
                 content: content,
@@ -209,13 +210,11 @@ export class DoubaoApi implements LLMApi {
           },
           // processToolMessage, include tool_calls message and tool call results
           (
-            requestPayload: RequestPayload,
+            requestPayload: RequestPayloadForByteDance,
             toolCallMessage: any,
             toolCallResult: any[],
           ) => {
-            // @ts-ignore
             requestPayload?.messages?.splice(
-              // @ts-ignore
               requestPayload?.messages?.length,
               0,
               toolCallMessage,
