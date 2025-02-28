@@ -118,6 +118,8 @@ export async function requestOpenai(req: NextRequest) {
 
       const jsonBody = JSON.parse(clonedBody) as { model?: string };
 
+      if (jsonBody?.model) console.log("[openai_model] ", jsonBody?.model);
+
       // not undefined and is false
       if (
         isModelNotavailableInServer(
