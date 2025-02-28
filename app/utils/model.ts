@@ -1,4 +1,4 @@
-import { DEFAULT_MODELS, ServiceProvider } from "../constant";
+import { DEFAULT_MODELS } from "../constant";
 import { LLMModel } from "../client/api";
 
 const CustomSeq = {
@@ -232,8 +232,9 @@ export function isModelNotavailableInServer(
   modelName: string,
   providerNames: string | string[],
 ): boolean {
-  return false;
   // Check DISABLE_GPT4 environment variable
+  return false;
+  /*
   if (
     process.env.DISABLE_GPT4 === "1" &&
     isGPT4Model(modelName.toLowerCase())
@@ -256,4 +257,5 @@ export function isModelNotavailableInServer(
     if (modelTable?.[fullName]?.available === true) return false;
   }
   return true;
+  */
 }
